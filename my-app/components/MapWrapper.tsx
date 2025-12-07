@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 
 const TripMap = dynamic(() => import('./TripMap'), {
   ssr: false,
-  loading: () => <div className="h-96 w-full rounded-lg bg-gray-100 animate-pulse" />
+  loading: () => <div className="h-96 w-full rounded-lg bg-gray-700 animate-pulse" />
 });
 
 interface Activity {
@@ -11,8 +11,25 @@ interface Activity {
   place: string;
   description: string;
   coordinates: [number, number];
+  recommendations?: {
+    name: string;
+    type: string;
+    coordinates: [number, number];
+  }[];
 }
 
-export default function MapWrapper({ activities }: { activities: Activity[] }) {
-  return <TripMap activities={activities} />;
+interface MapWrapperProps {
+  activities: Activity[];
+  selectedActivity: Activity | null;
+  onSelectActivity: (activity: Activity) => void;
+}
+
+export default function MapWrapper({ activities, selectedActivity, onSelectActivity }: MapWrapperProps) {
+  return (
+    <TripMap
+      activities={activities}
+      selectedActivity={selectedActivity}
+      onSelectActivity={onSelectActivity}
+    />
+  );
 }
