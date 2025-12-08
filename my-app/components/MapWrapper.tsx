@@ -43,22 +43,22 @@ export default function MapWrapper({
   };
 
   const downloadMap = async () => {
-    const map = tripMapRef.current?.getMap();
-    if (!map) return;
+  const map = tripMapRef.current?.getMap();
+  if (!map) return;
 
-    try {
-      leafletImage(map, (err: Error, canvas: HTMLCanvasElement) => {
-        if (err) throw err;
+  try {
+    leafletImage(map, (err: Error | null, canvas: HTMLCanvasElement) => {
+      if (err) throw err;
 
-        const link = document.createElement('a');
-        link.download = 'trip-map.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    } catch (error) {
-      console.error('Failed to download map:', error);
-      alert('Failed to download map. Please try again.');
-    }
+      const link = document.createElement('a');
+      link.download = 'trip-map.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  } catch (error) {
+    console.error('Failed to download map:', error);
+    alert('Failed to download map. Please try again.');
+  }
   };
 
   if (isFullscreen) {
