@@ -36,12 +36,15 @@ export default function Home() {
   const [showChat, setShowChat] = useState(false);
   const [destination, setDestination] = useState('');
 
-  const handleGenerate = (data: Itinerary, dest: string) => {
-    setItinerary(data);
-    setDestination(dest);
-    setSelectedDay(0);
-    setSelectedActivity(null);
-  };
+  const handleGenerate = (data: Itinerary & { destination?: string }) => {
+  setItinerary(data);
+
+  // Extract destination safely from data
+  setDestination(data.destination ?? '');
+
+  setSelectedDay(0);
+  setSelectedActivity(null);
+};
 
   const currentActivities = itinerary?.days?.[selectedDay]?.activities || [];
 
