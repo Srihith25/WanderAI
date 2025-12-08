@@ -146,11 +146,20 @@ export default function Home() {
         {/* Chat Button */}
         <button
           onClick={() => setShowChat(!showChat)}
-          className="fixed bottom-6 left-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 rounded-full shadow-lg transition-all z-50 flex items-center gap-2"
+          className="fixed bottom-6 left-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 rounded-full shadow-lg transition-all z-[101] flex items-center gap-2 group"
         >
-          {showChat ? '✕' : '🧭'}
-          {!showChat && <span className="hidden sm:inline">Ask Sanchari</span>}
+          {showChat ? (
+            <span className="text-xl">✕</span>
+          ) : (
+            <>
+              <span className="text-xl">🧭</span>
+              <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 ease-in-out whitespace-nowrap">
+                Ask Sanchari
+              </span>
+            </>
+          )}
         </button>
+
 
         {/* Chat Panel */}
         {showChat && (
