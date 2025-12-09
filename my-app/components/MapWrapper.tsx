@@ -37,17 +37,28 @@ export default function MapWrapper({
   onDownloadItinerary,
 }: MapWrapperProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showItineraryMenu, setShowItineraryMenu] = useState(false);
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const tripMapRef = useRef<{ getMap: () => Map | null }>(null);
 
-  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
+  const toggleFullscreen = () => {
+    setShowItineraryMenu(false);
+    setIsFullscreen(!isFullscreen);
+  };
 
   const downloadMap = async () => {
     const mapDiv = mapContainerRef.current;
     if (!mapDiv) return;
 
     try {
-      const canvas = await html2canvas(mapDiv, { useCORS: true });
+      const canvas = await html2canvas(mapDiv, {
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: null,
+        scale: 2,
+      });
+
       const link = document.createElement('a');
       link.download = 'trip-map.png';
       link.href = canvas.toDataURL('image/png');
@@ -58,38 +69,65 @@ export default function MapWrapper({
     }
   };
 
-  // Container classes for fullscreen
   const containerClass = isFullscreen
-    ? 'fixed inset-0 z-[1000] h-full w-full'
+    ? 'fixed inset-0 z-[900] h-full w-full bg-white dark:bg-gray-900'
     : 'relative w-full h-96';
 
   return (
     <>
-      {/* Buttons */}
-      <div className="fixed top-4 right-4 z-[1100] flex gap-2">
+      {/* Floating buttons (ALWAYS ON TOP) */}
+      <div className="fixed top-4 right-4 z-[2000] flex flex-col gap-2">
+
+        {/* Download Map */}
         <button
           onClick={downloadMap}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-xl"
         >
           📷 Download Map
         </button>
+
+        {/* Fullscreen */}
         <button
           onClick={toggleFullscreen}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-lg"
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-xl"
         >
           {isFullscreen ? '✕ Exit Fullscreen' : '⛶ Fullscreen'}
         </button>
+
+        {/* Download Itinerary Options */}
         {onDownloadItinerary && (
-          <button
-            onClick={onDownloadItinerary}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg"
-          >
-            ⬇️ Download Itinerary
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowItineraryMenu(prev => !prev)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xl"
+            >
+              ⬇️ Download Itinerary
+            </button>
+
+            {showItineraryMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl z-[3000]">
+                <button
+                  onClick={() => {
+                    setShowItineraryMenu(false);
+                    onDownloadItinerary();
+                  }}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Download PDF
+                </button>
+                <button
+                  onClick={() => alert('Add more formats if needed')}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Download TXT
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Map */}
+      {/* MAP */}
       <div ref={mapContainerRef} className={containerClass}>
         <TripMap
           ref={tripMapRef}
