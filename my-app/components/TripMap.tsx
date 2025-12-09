@@ -5,7 +5,6 @@ import { forwardRef, useImperativeHandle } from 'react';
 import L, { Map as LeafletMap } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Define your Activity type inline
 export interface Activity {
   time: string;
   place: string;
@@ -48,8 +47,8 @@ const TripMap = forwardRef<TripMapRef, TripMapProps>(
         }}
       >
         <TileLayer
-          attribution="&copy; Stadia Maps"
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key=YOUR_API_KEY"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         {activities.map((activity, idx) => (
