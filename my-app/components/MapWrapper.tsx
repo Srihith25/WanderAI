@@ -4,10 +4,8 @@ import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 // @ts-ignore
 import leafletImage from 'leaflet-image';
-import { Map as LeafletMap } from 'leaflet';
 import { Activity, TripMapRef } from './TripMap';
 
-// Dynamically import TripMap to avoid SSR issues
 const TripMap = dynamic(() => import('./TripMap'), { ssr: false });
 
 interface MapWrapperProps {
@@ -24,13 +22,13 @@ export default function MapWrapper({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const tripMapRef = useRef<TripMapRef>(null);
 
-  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
+  const toggleFullscreen = () => setIsFullscreen((prev) => !prev);
 
   const downloadMap = () => {
     const map = tripMapRef.current?.getMap();
     if (!map) return;
 
-    leafletImage(map, (err: Error | null, canvas: HTMLCanvasElement) => {
+    leafletImage(map, (err: any, canvas: HTMLCanvasElement) => {
       if (err) {
         console.error(err);
         alert('Failed to download map.');
@@ -52,7 +50,7 @@ export default function MapWrapper({
           : 'relative h-96 w-full'
       }
     >
-      {/* Buttons */}
+      {/* Buttons inside the map */}
       <div className="absolute top-4 right-4 z-[10000] flex flex-col gap-2">
         <button
           onClick={downloadMap}
@@ -76,7 +74,7 @@ export default function MapWrapper({
         selectedActivity={selectedActivity}
         onSelectActivity={onSelectActivity}
         isFullscreen={isFullscreen}
-        className="h-full w-full"
+        className="h-full w-full rounded-lg overflow-hidden"
       />
     </div>
   );

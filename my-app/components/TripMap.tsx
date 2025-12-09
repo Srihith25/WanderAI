@@ -1,6 +1,11 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+} from 'react-leaflet';
 import { forwardRef, useImperativeHandle } from 'react';
 import L, { Map as LeafletMap } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -28,7 +33,7 @@ export interface TripMapRef {
 const TripMap = forwardRef<TripMapRef, TripMapProps>(
   ({ activities, selectedActivity, onSelectActivity, className }, ref) => {
     const defaultPosition: [number, number] =
-      activities.length > 0 ? activities[0].coordinates : [40.7128, -74.0060];
+      activities.length > 0 ? activities[0].coordinates : [40.7128, -74.006];
 
     let mapInstance: LeafletMap | null = null;
 
@@ -47,8 +52,8 @@ const TripMap = forwardRef<TripMapRef, TripMapProps>(
         }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap contributors'
         />
 
         {activities.map((activity, idx) => (
