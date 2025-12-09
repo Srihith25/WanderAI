@@ -55,8 +55,7 @@ export default function MapWrapper({
       const canvas = await html2canvas(mapDiv, {
         useCORS: true,
         allowTaint: false,
-        backgroundColor: null,
-        scale: 2,
+        
       });
 
       const link = document.createElement('a');
