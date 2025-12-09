@@ -1,81 +1,102 @@
 'use client';
-
 import dynamic from 'next/dynamic';
-import { useRef, useState } from 'react';
-// @ts-ignore
-import leafletImage from 'leaflet-image';
-import { Activity, TripMapRef } from './TripMap';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import { Map } from 'leaflet';
 
-const TripMap = dynamic(() => import('./TripMap'), { ssr: false });
+const TripMap = dynamic(() => import('./TripMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 w-full rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse" />
+  ),
+});
+
+interface Activity {
+  time: string;
+  place: string;
+  description: string;
+  coordinates: [number, number];
+  recommendations?: {
+    name: string;
+    type: string;
+    coordinates: [number, number];
+  }[];
+}
 
 interface MapWrapperProps {
   activities: Activity[];
   selectedActivity: Activity | null;
   onSelectActivity: (activity: Activity) => void;
+  onDownloadItinerary?: () => void;
 }
 
 export default function MapWrapper({
   activities,
   selectedActivity,
   onSelectActivity,
+  onDownloadItinerary,
 }: MapWrapperProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const tripMapRef = useRef<TripMapRef>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const tripMapRef = useRef<{ getMap: () => Map | null }>(null);
 
-  const toggleFullscreen = () => setIsFullscreen((prev) => !prev);
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-  const downloadMap = () => {
-    const map = tripMapRef.current?.getMap();
-    if (!map) return;
+  const downloadMap = async () => {
+    const mapDiv = mapContainerRef.current;
+    if (!mapDiv) return;
 
-    leafletImage(map, (err: any, canvas: HTMLCanvasElement) => {
-      if (err) {
-        console.error(err);
-        alert('Failed to download map.');
-        return;
-      }
-
+    try {
+      const canvas = await html2canvas(mapDiv, { useCORS: true });
       const link = document.createElement('a');
       link.download = 'trip-map.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
-    });
+    } catch (error) {
+      console.error('Failed to download map:', error);
+      alert('Failed to download map. Please try again.');
+    }
   };
 
+  const containerClass = isFullscreen
+    ? 'fixed inset-0 z-[1000] h-full w-full'
+    : 'relative w-full h-96';
+
   return (
-    <div
-      className={
-        isFullscreen
-          ? 'fixed inset-0 z-[9999] bg-white dark:bg-black'
-          : 'relative h-96 w-full'
-      }
-    >
-      {/* Buttons inside the map */}
-      <div className="absolute top-4 right-4 z-[10000] flex flex-col gap-2">
+    <>
+      <div className="fixed top-4 right-4 z-[1100] flex gap-2">
         <button
           onClick={downloadMap}
-          className="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg"
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg"
         >
           📷 Download Map
         </button>
-
         <button
           onClick={toggleFullscreen}
-          className="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-lg"
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow-lg"
         >
           {isFullscreen ? '✕ Exit Fullscreen' : '⛶ Fullscreen'}
         </button>
+        {onDownloadItinerary && (
+          <button
+            onClick={onDownloadItinerary}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg"
+          >
+            ⬇️ Download Itinerary
+          </button>
+        )}
       </div>
 
-      {/* Map */}
-      <TripMap
-        ref={tripMapRef}
-        activities={activities}
-        selectedActivity={selectedActivity}
-        onSelectActivity={onSelectActivity}
-        isFullscreen={isFullscreen}
-        className="h-full w-full rounded-lg overflow-hidden"
-      />
-    </div>
+      <div ref={mapContainerRef} className={containerClass}>
+        <TripMap
+          ref={tripMapRef}
+          activities={activities}
+          selectedActivity={selectedActivity}
+          onSelectActivity={onSelectActivity}
+          isFullscreen={isFullscreen}
+          className="h-full w-full"
+        />
+      </div>
+    </>
   );
 }
