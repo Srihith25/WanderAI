@@ -48,8 +48,10 @@ export default function TripForm({ onGenerate }: TripFormProps) {
       const filtered = popularDestinations.filter(place =>
         place.display.toLowerCase().includes(value.toLowerCase())
       );
+      console.log('Filtered suggestions:', filtered); // Debug log
       setSuggestions(filtered);
       setShowSuggestions(true);
+      console.log('Show suggestions:', true); // Debug log
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -121,7 +123,8 @@ export default function TripForm({ onGenerate }: TripFormProps) {
         {showSuggestions && suggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-[100] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+            className="absolute z-[9999] w-full mt-1 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 rounded-lg shadow-2xl max-h-60 overflow-y-auto"
+            style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}
           >
             {suggestions.map((suggestion, idx) => (
               <button
@@ -137,6 +140,13 @@ export default function TripForm({ onGenerate }: TripFormProps) {
                 </div>
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Debug indicator */}
+        {showSuggestions && (
+          <div className="text-xs text-red-500 mt-1">
+            Dropdown active: {suggestions.length} suggestions
           </div>
         )}
       </div>
