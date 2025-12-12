@@ -45,7 +45,6 @@ export default function DownloadButton({ itinerary, destination = 'Trip' }: Down
       day.activities.forEach(activity => {
         content += `\n${activity.time} - ${activity.place}\n`;
         content += `${activity.description}\n`;
-        content += `Location: ${activity.coordinates[0]}, ${activity.coordinates[1]}\n`;
         if (activity.recommendations?.length) {
           content += `\nNearby Recommendations:\n`;
           activity.recommendations.forEach(rec => {
@@ -122,13 +121,7 @@ export default function DownloadButton({ itinerary, destination = 'Trip' }: Down
         doc.setTextColor(75, 85, 99);
         const descriptionLines = doc.splitTextToSize(activity.description, maxWidth - 10);
         doc.text(descriptionLines, margin + 5, yPosition);
-        yPosition += descriptionLines.length * 5 + 3;
-
-        // Coordinates
-        doc.setFontSize(9);
-        doc.setTextColor(107, 114, 128);
-        doc.text(`📍 ${activity.coordinates[0].toFixed(4)}, ${activity.coordinates[1].toFixed(4)}`, margin + 5, yPosition);
-        yPosition += 6;
+        yPosition += descriptionLines.length * 5 + 6;
 
         // Recommendations
         if (activity.recommendations?.length) {
@@ -266,22 +259,7 @@ export default function DownloadButton({ itinerary, destination = 'Trip' }: Down
                 color: '4B5563',
               }),
             ],
-            spacing: { before: 100 },
-          })
-        );
-
-        // Coordinates
-        children.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `📍 Location: ${activity.coordinates[0].toFixed(4)}, ${activity.coordinates[1].toFixed(4)}`,
-                size: 18,
-                color: '6B7280',
-                italics: true,
-              }),
-            ],
-            spacing: { before: 100 },
+            spacing: { before: 100, after: 100 },
           })
         );
 

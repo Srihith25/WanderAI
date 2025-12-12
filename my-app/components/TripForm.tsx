@@ -102,7 +102,7 @@ export default function TripForm({ onGenerate }: TripFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-      <div className="relative" ref={suggestionsRef}>
+      <div className="relative">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Destination
         </label>
@@ -119,7 +119,10 @@ export default function TripForm({ onGenerate }: TripFormProps) {
 
         {/* Suggestions dropdown */}
         {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute z-[100] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+          <div
+            ref={suggestionsRef}
+            className="absolute z-[100] w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+          >
             {suggestions.map((suggestion, idx) => (
               <button
                 key={idx}
