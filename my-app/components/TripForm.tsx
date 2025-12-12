@@ -1,8 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface TripFormProps {
   onGenerate: (data: any) => void;
+}
+
+interface PlaceSuggestion {
+  name: string;
+  country: string;
+  display: string;
 }
 
 export default function TripForm({ onGenerate }: TripFormProps) {
@@ -11,11 +17,68 @@ export default function TripForm({ onGenerate }: TripFormProps) {
   const [preferences, setPreferences] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Popular destinations with suggestions
+  const popularDestinations: PlaceSuggestion[] = [
+    { name: 'Paris', country: 'France', display: 'Paris, France' },
+    { name: 'London', country: 'United Kingdom', display: 'London, United Kingdom' },
+    { name: 'Tokyo', country: 'Japan', display: 'Tokyo, Japan' },
+    { name: 'New York', country: 'USA', display: 'New York, USA' },
+    { name: 'Rome', country: 'Italy', display: 'Rome, Italy' },
+    { name: 'Barcelona', country: 'Spain', display: 'Barcelona, Spain' },
+    { name: 'Dubai', country: 'UAE', display: 'Dubai, UAE' },
+    { name: 'Bali', country: 'Indonesia', display: 'Bali, Indonesia' },
+    { name: 'Singapore', country: 'Singapore', display: 'Singapore' },
+    { name: 'Sydney', country: 'Australia', display: 'Sydney, Australia' },
+    { name: 'Amsterdam', country: 'Netherlands', display: 'Amsterdam, Netherlands' },
+    { name: 'Istanbul', country: 'Turkey', display: 'Istanbul, Turkey' },
+    { name: 'Bangkok', country: 'Thailand', display: 'Bangkok, Thailand' },
+    { name: 'Prague', country: 'Czech Republic', display: 'Prague, Czech Republic' },
+    { name: 'Venice', country: 'Italy', display: 'Venice, Italy' },
+  ];
+
+  // Handle destination input changes
+  const handleDestinationChange = (value: string) => {
+    setDestination(value);
+
+    if (value.trim().length >= 2) {
+      const filtered = popularDestinations.filter(place =>
+        place.display.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionClick = (suggestion: PlaceSuggestion) => {
+    setDestination(suggestion.display);
+    setShowSuggestions(false);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setShowSuggestions(false);
 
     try {
       const response = await fetch('/api/generate', {
@@ -39,18 +102,40 @@ export default function TripForm({ onGenerate }: TripFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-      <div>
+      <div className="relative" ref={suggestionsRef}>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Destination
         </label>
         <input
           type="text"
           value={destination}
-          onChange={(e) => setDestination(e.target.value)}
+          onChange={(e) => handleDestinationChange(e.target.value)}
+          onFocus={() => destination.trim().length >= 2 && setShowSuggestions(true)}
           placeholder="Where do you want to go?"
           className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
+          autoComplete="off"
         />
+
+        {/* Suggestions dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            {suggestions.map((suggestion, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+              >
+                <span className="text-lg">📍</span>
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-white">{suggestion.name}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{suggestion.country}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div>
