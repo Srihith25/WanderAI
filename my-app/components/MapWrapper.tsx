@@ -1,7 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useState, useRef } from 'react';
-import domtoimage from 'dom-to-image-more';
 import { Map } from 'leaflet';
 
 const TripMap = dynamic(() => import('./TripMap'), {
@@ -64,6 +63,9 @@ export default function MapWrapper({
 
       // Wait for tiles to load
       await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Dynamically import dom-to-image-more only on client side
+      const domtoimage = (await import('dom-to-image-more')).default;
 
       // Use dom-to-image-more to capture the map
       const dataUrl = await domtoimage.toPng(mapDiv, {
