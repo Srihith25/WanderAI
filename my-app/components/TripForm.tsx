@@ -53,15 +53,28 @@ export default function TripForm({ onGenerate }: TripFormProps) {
       const data = await response.json();
 
       const formattedSuggestions: PlaceSuggestion[] = data
+        .filter((item: any) => {
+          // Filter to prioritize cities, towns, and major places
+          const type = item.type;
+          const osmType = item.osm_type;
+
+          // Prioritize cities, towns, and places
+          // Exclude very small places like hamlets, isolated dwellings, etc.
+          return (
+            type === 'city' ||
+            type === 'town' ||
+            type === 'municipality' ||
+            type === 'administrative' ||
+            (osmType === 'relation' && (type === 'state' || type === 'country'))
+          );
+        })
         .map((item: any) => {
           const address = item.address || {};
 
           // Priority order for city name
           const cityName = address.city ||
                           address.town ||
-                          address.village ||
                           address.municipality ||
-                          address.county ||
                           address.state ||
                           item.name;
 
