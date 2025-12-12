@@ -48,3 +48,35 @@ body {
 .leaflet-tile-loaded {
   border: none !important;
 }
+
+/* Remove borders from markers and marker icons */
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  border: none !important;
+  outline: none !important;
+}
+
+.leaflet-marker-icon img,
+.leaflet-marker-shadow img {
+  border: none !important;
+  outline: none !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Ensure popup doesn't have borders */
+.leaflet-popup-content-wrapper {
+  border: none !important;
+}
+
+/* Remove spinner from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
